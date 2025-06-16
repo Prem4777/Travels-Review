@@ -41,9 +41,34 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta charset="UTF-8" />
   <title>Register - Travels Review</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .register-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+      padding: 32px 28px 24px 28px;
+      margin: 60px auto;
+      max-width: 500px;
+    }
+    .register-card h2 {
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: #222;
+      text-align: center;
+    }
+    .form-label {
+      font-weight: 500;
+    }
+    .btn-primary {
+      min-width: 120px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container mt-5" style="max-width: 500px;">
+  <div class="register-card">
     <h2>Register</h2>
     <?php if ($message): ?>
       <div class="alert alert-warning"><?= htmlspecialchars($message) ?></div>
@@ -65,8 +90,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <label for="confirm_password" class="form-label">Confirm Password</label>
         <input type="password" class="form-control" id="confirm_password" name="confirm_password" required />
       </div>
-      <button type="submit" class="btn btn-primary">Register</button>
-      <p class="mt-3">Already have an account? <a href="login.php">Login here</a></p>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Register</button>
+      </div>
+      <p class="mt-3 text-center">Already have an account? <a href="login.php">Login here</a></p>
     </form>
   </div>
 </body>

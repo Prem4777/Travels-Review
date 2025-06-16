@@ -15,8 +15,8 @@ if ($destination_id <= 0) {
     die("Invalid destination ID.");
 }
 
-// Fetch destination details
-$sql = "SELECT name, description FROM destinations WHERE id = $destination_id";
+// Fetch destination details and owner
+$sql = "SELECT name, description, user_id FROM destinations WHERE id = $destination_id";
 $result = mysqli_query($mysqli, $sql);
 if (!$result || mysqli_num_rows($result) === 0) {
     die("Destination not found.");
@@ -24,6 +24,29 @@ if (!$result || mysqli_num_rows($result) === 0) {
 $row = mysqli_fetch_assoc($result);
 $name = $row['name'];
 $description = $row['description'];
+$destination_owner_id = $row['user_id'];
+
+// Handle photo deletion (only by owner)
+if (
+    isset($_GET['delete_photo']) &&
+    $destination_owner_id == $_SESSION['user_id']
+) {
+    $photo_id = (int)$_GET['delete_photo'];
+    // Get photo path
+    $photo_res = mysqli_query($mysqli, "SELECT photo FROM destination_photos WHERE id=$photo_id AND destination_id=$destination_id");
+    if ($photo_res && mysqli_num_rows($photo_res) === 1) {
+        $photo_row = mysqli_fetch_assoc($photo_res);
+        $photo_path = $photo_row['photo'];
+        // Delete from DB
+        mysqli_query($mysqli, "DELETE FROM destination_photos WHERE id=$photo_id AND destination_id=$destination_id");
+        // Delete file from disk
+        if (file_exists($photo_path)) {
+            @unlink($photo_path);
+        }
+    }
+    header("Location: destination.php?id=$destination_id");
+    exit;
+}
 
 // Calculate average rating for this destination from reviews table
 $avg_sql = "SELECT AVG(rating) as avg_rating, COUNT(*) as total_reviews FROM reviews WHERE destination_id = $destination_id";
@@ -69,6 +92,16 @@ $reviews = [];
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
         $reviews[] = $row;
+    }
+}
+
+// Fetch photos for this destination (get id and photo)
+$photos = [];
+$gallery_sql = "SELECT id, photo FROM destination_photos WHERE destination_id = $destination_id";
+$gallery_result = mysqli_query($mysqli, $gallery_sql);
+if ($gallery_result) {
+    while ($row = mysqli_fetch_assoc($gallery_result)) {
+        $photos[] = $row;
     }
 }
 
@@ -169,6 +202,27 @@ mysqli_close($mysqli);
     <button type="submit" class="btn btn-primary">Submit Review</button>
     <a href="dashboard.php" class="btn btn-secondary ms-2">Back to Dashboard</a>
   </form>
+
+  <!-- Photo Gallery Section -->
+  <div class="mb-4">
+    <h4>Photo Gallery</h4>
+    <?php if ($destination_owner_id == $_SESSION['user_id']): ?>
+      <a href="add_photo.php?destination_id=<?= $destination_id ?>" class="btn btn-success btn-sm mb-2">Add Photo</a>
+    <?php endif; ?>
+    <div class="row g-2">
+      <?php foreach ($photos as $photo): ?>
+        <div class="col-6 col-md-3 position-relative">
+          <img src="<?= htmlspecialchars($photo['photo']) ?>" class="img-fluid rounded" style="height:120px;object-fit:cover;" alt="Gallery Photo">
+          <?php if ($destination_owner_id == $_SESSION['user_id']): ?>
+            <a href="destination.php?id=<?= $destination_id ?>&delete_photo=<?= $photo['id'] ?>"
+               onclick="return confirm('Delete this photo?');"
+               class="btn btn-danger btn-sm position-absolute top-0 end-0 m-1"
+               style="z-index:2;">&times;</a>
+          <?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
 
 </div>
 </body>

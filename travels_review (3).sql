@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 12, 2025 at 06:45 PM
+-- Generation Time: Jun 16, 2025 at 02:31 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,6 +35,19 @@ CREATE TABLE `destinations` (
   `avg_rating` float DEFAULT 0,
   `image` varchar(255) DEFAULT NULL,
   `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `destination_photos`
+--
+
+CREATE TABLE `destination_photos` (
+  `id` int(11) NOT NULL,
+  `destination_id` int(11) NOT NULL,
+  `photo` varchar(255) NOT NULL,
+  `uploaded_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -86,6 +99,13 @@ ALTER TABLE `destinations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `destination_photos`
+--
+ALTER TABLE `destination_photos`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `destination_id` (`destination_id`);
+
+--
 -- Indexes for table `reviews`
 --
 ALTER TABLE `reviews`
@@ -109,7 +129,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `destinations`
 --
 ALTER TABLE `destinations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+
+--
+-- AUTO_INCREMENT for table `destination_photos`
+--
+ALTER TABLE `destination_photos`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `reviews`
@@ -126,6 +152,12 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `destination_photos`
+--
+ALTER TABLE `destination_photos`
+  ADD CONSTRAINT `destination_photos_ibfk_1` FOREIGN KEY (`destination_id`) REFERENCES `destinations` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `reviews`
